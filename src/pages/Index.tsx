@@ -1,14 +1,60 @@
-// Update this page (the content is just a fallback if you fail to update the page)
+import { useState } from 'react';
+import Header from '@/components/Header';
+import HeroSection from '@/components/HeroSection';
+import CatalogSection from '@/components/CatalogSection';
+import LoyaltySection from '@/components/LoyaltySection';
+import Footer from '@/components/Footer';
+import { toast } from 'sonner';
 
-const Index = () => {
+export default function Index() {
+  const [loyaltyPoints, setLoyaltyPoints] = useState(350);
+
+  const handleNavigate = (section: string) => {
+    if (section === 'home') {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      return;
+    }
+
+    const sectionMap: Record<string, string> = {
+      catalog: 'catalog',
+      loyalty: 'loyalty',
+      about: 'catalog',
+      delivery: 'catalog',
+      blog: 'catalog',
+      contacts: 'catalog',
+    };
+
+    const targetId = sectionMap[section];
+    if (targetId) {
+      const element = document.getElementById(targetId);
+      if (element) {
+        const offset = 100;
+        const elementPosition = element.getBoundingClientRect().top;
+        const offsetPosition = elementPosition + window.pageYOffset - offset;
+        window.scrollTo({ top: offsetPosition, behavior: 'smooth' });
+      }
+    }
+  };
+
+  const handleEarnPoints = () => {
+    const earnedPoints = Math.floor(Math.random() * 100) + 50;
+    setLoyaltyPoints(prev => prev + earnedPoints);
+    toast.success(`Вы заработали ${earnedPoints} баллов!`, {
+      description: 'Баллы можно использовать при следующей покупке',
+    });
+  };
+
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100">
-      <div className="text-center">
-        <h1 className="text-4xl font-bold mb-4 color-black text-black">Добро пожаловать!</h1>
-        <p className="text-xl text-gray-600">тут будет отображаться ваш проект</p>
-      </div>
+    <div className="min-h-screen">
+      <Header onNavigate={handleNavigate} loyaltyPoints={loyaltyPoints} />
+      
+      <main className="pt-20">
+        <HeroSection onNavigate={handleNavigate} />
+        <CatalogSection />
+        <LoyaltySection loyaltyPoints={loyaltyPoints} onEarnPoints={handleEarnPoints} />
+      </main>
+
+      <Footer />
     </div>
   );
-};
-
-export default Index;
+}
