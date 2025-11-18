@@ -2,14 +2,17 @@ import { useState } from 'react';
 import Icon from '@/components/ui/icon';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { useCartStore } from '@/store/cartStore';
 
 interface HeaderProps {
   onNavigate: (section: string) => void;
   loyaltyPoints: number;
+  onCartOpen: () => void;
 }
 
-export default function Header({ onNavigate, loyaltyPoints }: HeaderProps) {
+export default function Header({ onNavigate, loyaltyPoints, onCartOpen }: HeaderProps) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const getTotalItems = useCartStore(state => state.getTotalItems);
 
   const navItems = [
     { label: 'Главная', value: 'home' },
@@ -57,11 +60,13 @@ export default function Header({ onNavigate, loyaltyPoints }: HeaderProps) {
               <span className="text-sm font-medium">{loyaltyPoints} баллов</span>
             </button>
 
-            <Button variant="ghost" size="icon" className="relative">
+            <Button variant="ghost" size="icon" className="relative" onClick={onCartOpen}>
               <Icon name="ShoppingBag" size={20} />
-              <Badge className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center p-0 bg-secondary text-xs">
-                0
-              </Badge>
+              {getTotalItems() > 0 && (
+                <Badge className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center p-0 bg-secondary text-xs">
+                  {getTotalItems()}
+                </Badge>
+              )}
             </Button>
 
             <Button

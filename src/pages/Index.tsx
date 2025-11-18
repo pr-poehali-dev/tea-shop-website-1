@@ -4,10 +4,14 @@ import HeroSection from '@/components/HeroSection';
 import CatalogSection from '@/components/CatalogSection';
 import LoyaltySection from '@/components/LoyaltySection';
 import Footer from '@/components/Footer';
+import CartSheet from '@/components/CartSheet';
+import CheckoutModal from '@/components/CheckoutModal';
 import { toast } from 'sonner';
 
 export default function Index() {
   const [loyaltyPoints, setLoyaltyPoints] = useState(350);
+  const [isCartOpen, setIsCartOpen] = useState(false);
+  const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
 
   const handleNavigate = (section: string) => {
     if (section === 'home') {
@@ -44,9 +48,18 @@ export default function Index() {
     });
   };
 
+  const handleCheckout = () => {
+    setIsCartOpen(false);
+    setIsCheckoutOpen(true);
+  };
+
   return (
     <div className="min-h-screen">
-      <Header onNavigate={handleNavigate} loyaltyPoints={loyaltyPoints} />
+      <Header 
+        onNavigate={handleNavigate} 
+        loyaltyPoints={loyaltyPoints}
+        onCartOpen={() => setIsCartOpen(true)}
+      />
       
       <main className="pt-20">
         <HeroSection onNavigate={handleNavigate} />
@@ -55,6 +68,17 @@ export default function Index() {
       </main>
 
       <Footer />
+
+      <CartSheet
+        isOpen={isCartOpen}
+        onClose={() => setIsCartOpen(false)}
+        onCheckout={handleCheckout}
+      />
+
+      <CheckoutModal
+        isOpen={isCheckoutOpen}
+        onClose={() => setIsCheckoutOpen(false)}
+      />
     </div>
   );
 }

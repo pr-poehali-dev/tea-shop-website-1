@@ -4,16 +4,19 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import Icon from '@/components/ui/icon';
 import { teas, teaTypes, countries, type Tea } from '@/data/teas';
+import TeaDetailModal from './TeaDetailModal';
 
 export default function CatalogSection() {
   const [selectedType, setSelectedType] = useState('Все сорта');
   const [selectedCountry, setSelectedCountry] = useState('Все страны');
   const [priceRange, setPriceRange] = useState<[number, number]>([0, 6000]);
+  const [selectedTea, setSelectedTea] = useState<Tea | null>(null);
 
   const filteredTeas = teas.filter((tea) => {
     const typeMatch = selectedType === 'Все сорта' || tea.type === selectedType;
     const countryMatch = selectedCountry === 'Все страны' || tea.country === selectedCountry;
-    const priceMatch = tea.price >= priceRange[0] && tea.price <= priceRange[1];
+    const minPrice = Math.min(...Object.values(tea.prices));
+    const priceMatch = minPrice >= priceRange[0] && minPrice <= priceRange[1];
     return typeMatch && countryMatch && priceMatch;
   });
 
@@ -86,7 +89,7 @@ export default function CatalogSection() {
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
           {filteredTeas.map((tea) => (
-            <TeaCard key={tea.id} tea={tea} />
+            <TeaCard key={tea.id} tea={tea} onClick={() => setSelectedTea(tea)} />
           ))}
         </div>
 
@@ -109,14 +112,20 @@ export default function CatalogSection() {
             </Button>
           </div>
         )}
+
+        <TeaDetailModal
+          tea={selectedTea}
+          isOpen={!!selectedTea}
+          onClose={() => setSelectedTea(null)}
+        />
       </div>
     </section>
   );
 }
 
-function TeaCard({ tea }: { tea: Tea }) {
+function TeaCard({ tea, onClick }: { tea: Tea; onClick: () => void }) {
   return (
-    <Card className="group overflow-hidden hover:shadow-xl transition-all duration-300">
+    <Card className="group overflow-hidden hover:shadow-xl transition-all duration-300 cursor-pointer" onClick={onClick}>
       <div className="relative overflow-hidden aspect-square">
         <img
           src={tea.image}
@@ -143,17 +152,27 @@ function TeaCard({ tea }: { tea: Tea }) {
           </div>
         </div>
 
+        <div className="flex items-center gap-1 text-sm">
+          <Icon name="Star" size={14} className="text-secondary fill-secondary" />
+          <span className="font-medium">{tea.ratings}</span>
+          <span className="text-muted-foreground">({tea.reviewCount})</span>
+        </div>
+
         <p className="text-sm text-muted-foreground line-clamp-2">
           {tea.description}
         </p>
 
         <div className="flex items-center justify-between pt-2">
-          <div className="font-cormorant text-2xl font-bold text-primary">
-            {tea.price.toLocaleString()} ₽
+          <div>
+            <div className="text-xs text-muted-foreground">от</div>
+            <div className="font-cormorant text-2xl font-bold text-primary">
+              {tea.prices[20].toLocaleString()} ₽
+            </div>
+            <div className="text-xs text-muted-foreground">за 20г</div>
           </div>
           <Button size="sm" className="bg-primary hover:bg-primary/90">
-            <Icon name="ShoppingCart" size={16} className="mr-1" />
-            В корзину
+            Подробнее
+            <Icon name="ArrowRight" size={16} className="ml-1" />
           </Button>
         </div>
       </CardContent>
